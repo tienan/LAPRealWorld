@@ -92,7 +92,7 @@ library(RMSSQL)
 # "ASSAY_REPORT"
 # 
 # df <- sqlQuery(cn, "Select distinct a.master_index,SEX, datediff(year,a.birthday,min_time),ORG_CODE from LDL_PERSON_CODE_ALL_3_1 a
-# join (select master_index,min(diag_time)min_time  from LDL_PERSON_CODE_ALL_2_1 where DISEASE_NAME like '%è¡€%è„‚%' or DISEASE_NAME like '%è„‚%è¡€%' or ICD like '%E78%'
+# join (select master_index,min(diag_time)min_time  from LDL_PERSON_CODE_ALL_2_1 where DISEASE_NAME like '%Ñª%Ö¬%' or DISEASE_NAME like '%Ö¬%Ñª%' or ICD like '%E78%'
 # group by master_index ) b  on a.master_index=b.master_index
 # where a.MASTER_INDEX in 
 # (Select distinct  * From NON_TATING  )")
@@ -103,47 +103,47 @@ library(RMSSQL)
 
 
 df = tbl_df(sqlQuery(cn, "SELECT top 100 [REPORT_ID]
-      ,[REPORT_CODE]
-      ,[REG_ID]
-      ,[REG_CODE]
-      ,[EMP_CODE]
-      ,[EMP_NAME]
-      ,[REPORT_TIME]
-      ,[SPECIMEN_TYPE]
-      ,[ASSAY_ITEM_CODE]
-      ,[ASSAY_ITEM_NAME]
-      ,[ITEM_ENAME]
-      ,[UNIT]
-      ,[RESULTS]
-      ,[REFRANGE]
-      ,[RESULTSTATUS]
-      ,[REG_SOURCE]
-      ,[ORG_CODE]
-      ,[UPLOAD_TIME]
-  FROM [DB_DIAG_DIABETES_ZONG].[dbo].[ASSAY_REPORT]")) 
-  
+                     ,[REPORT_CODE]
+                     ,[REG_ID]
+                     ,[REG_CODE]
+                     ,[EMP_CODE]
+                     ,[EMP_NAME]
+                     ,[REPORT_TIME]
+                     ,[SPECIMEN_TYPE]
+                     ,[ASSAY_ITEM_CODE]
+                     ,[ASSAY_ITEM_NAME]
+                     ,[ITEM_ENAME]
+                     ,[UNIT]
+                     ,[RESULTS]
+                     ,[REFRANGE]
+                     ,[RESULTSTATUS]
+                     ,[REG_SOURCE]
+                     ,[ORG_CODE]
+                     ,[UPLOAD_TIME]
+                     FROM [DB_DIAG_DIABETES_ZONG].[dbo].[ASSAY_REPORT]")) 
+
 
 df = tbl_df(sqlQuery(cn, "SELECT top 100 [REPORT_ID]
-      ,[REPORT_CODE]
-      ,[REG_ID]
-      ,[REG_CODE]
-      ,[EMP_CODE]
-      ,[EMP_NAME]
-      ,[REPORT_TIME]
-      ,[SPECIMEN_TYPE]
-      ,[ASSAY_ITEM_CODE]
-      ,[ASSAY_ITEM_NAME]
-      ,[ITEM_ENAME]
-      ,[UNIT]
-      ,[RESULTS]
-      ,[REFRANGE]
-      ,[RESULTSTATUS]
-      ,[REG_SOURCE]
-      ,[ORG_CODE]
-      ,[UPLOAD_TIME]
-  FROM [ASSAY_REPORT]")) 
+                     ,[REPORT_CODE]
+                     ,[REG_ID]
+                     ,[REG_CODE]
+                     ,[EMP_CODE]
+                     ,[EMP_NAME]
+                     ,[REPORT_TIME]
+                     ,[SPECIMEN_TYPE]
+                     ,[ASSAY_ITEM_CODE]
+                     ,[ASSAY_ITEM_NAME]
+                     ,[ITEM_ENAME]
+                     ,[UNIT]
+                     ,[RESULTS]
+                     ,[REFRANGE]
+                     ,[RESULTSTATUS]
+                     ,[REG_SOURCE]
+                     ,[ORG_CODE]
+                     ,[UPLOAD_TIME]
+                     FROM [ASSAY_REPORT]")) 
 
-  
+
 head(df)
 
 ? DBI::dbConnect
@@ -153,21 +153,48 @@ cn <- odbcDriverConnect(
     "Driver={SQL Server Native Client 11.0};server=localhost; 
   database=DB_LPA_ZONG;
   trusted_connection=yes;")
+source("R/tools.R",encoding="utf-8")
+
 ##########################################################LAP outPatients
+df_lpa_tating=tbl_df(
+  sqlQuery(cn, "Select  distinct *  from TATING_LPA a order by MASTER_INDEX,age") )
+write.csv(df_lpa_tating,file = "df_lpa_tating.csv",row.names = F) 
+df_lpa_tating_trend = trendAnalysis(df_lpa_tating,1)
+head(df_lpa_tating_trend)
+
+df_lpa_non_tating=tbl_df(
+  sqlQuery(cn, "Select  distinct *  from NON_TATING_LPA a order by MASTER_INDEX") )
+df_lpa_non_tating_trend = trendAnalysis(df_lpa_non_tating,2)
+head(df_lpa_non_tating)
+
+df_ldl_C_tating=tbl_df(
+  sqlQuery(cn, "Select  distinct *  from TATING_LDL_C a order by MASTER_INDEX ,age") )
+df_ldl_C_tating_trend = trendAnalysis(df_ldl_C_tating,1)
+
+
+df_ldl_C_non_tating=tbl_df(
+  sqlQuery(cn, "Select  distinct *  from NON_TATING_LDL_C a order by MASTER_INDEX ,age") )
+df_ldl_C_non_tating_trend = trendAnalysis(df_ldl_C_non_tating,1)
+
+tating_info=tbl_df(
+  sqlQuery(cn, "select distinct * from  tating_into_demo order by MASTER_INDEX ") )
+
 
 ##################tating group
 df_lpa_tating=tbl_df(
   sqlQuery(cn, "Select  distinct *  from TATING_LPA a order by MASTER_INDEX,age") )
+write.csv(df_lpa_tating,file = "df_lpa_tating.csv",row.names = F) 
+
 df_lpa = df_lpa_tating
 head(df_lpa)
 table(df_lpa$sex)
 df_lpa$sex = as.character(df_lpa$sex)
 
-#ç”·1å¥³2å…¶ä»–
+#ÄÐ1Å®2ÆäËû
 
 
-df_lpa[grepl(pattern = "ç”·",x=df_lpa$sex),]$sex = 1
-df_lpa[grepl(pattern = "å¥³",x=df_lpa$sex),]$sex = 2
+df_lpa[grepl(pattern = "ÄÐ",x=df_lpa$sex),]$sex = 1
+df_lpa[grepl(pattern = "Å®",x=df_lpa$sex),]$sex = 2
 df_lpa[!df_lpa$sex%in%c(1,2),]$sex = 3
 
 
@@ -199,7 +226,7 @@ table(tatingSign)
 #tatingSign
 #-1    1 
 #955 2166 
-#1306 1815 å¹´é¾„è°ƒæ•´åŽ
+#1306 1815 ÄêÁäµ÷Õûºó
 1851/1306
 
 
@@ -214,7 +241,7 @@ table(basicData$gender)
 #1    2    3 
 #1491 1617   34
 
-#ä»–æ±€æ•°æ®æ•´åˆ
+#ËûÍ¡Êý¾ÝÕûºÏ
 
 tating_res = basicData
 tating_res$tating = 1
@@ -227,16 +254,17 @@ tating_res =as.data.frame(tating_res)
 
 df_lpa_non_tating=tbl_df(
   sqlQuery(cn, "Select  distinct *  from NON_TATING_LPA a order by MASTER_INDEX  --63922") )
+write.csv(df_lpa_non_tating,file = "df_lpa_non_tating.csv")
 df_lpa = df_lpa_non_tating
 head(df_lpa)
 table(df_lpa$sex)
 df_lpa$sex = as.character(df_lpa$sex)
 
-#ç”·1å¥³2å…¶ä»–
+#ÄÐ1Å®2ÆäËû
 
 
-df_lpa[grepl(pattern = "ç”·",x=df_lpa$sex),]$sex = 1
-df_lpa[grepl(pattern = "å¥³",x=df_lpa$sex),]$sex = 2
+df_lpa[grepl(pattern = "ÄÐ",x=df_lpa$sex),]$sex = 1
+df_lpa[grepl(pattern = "Å®",x=df_lpa$sex),]$sex = 2
 df_lpa[!df_lpa$sex%in%c(1,2),]$sex = 3
 
 
@@ -297,6 +325,7 @@ rownames(tating_res)
 tating_res = as.matrix(tating_res)
 
 outpatient_res = as.data.frame(rbind(as.matrix(tating_res),as.matrix(tmp)))
+head(outpatient_res)
 
 
 Logic_glm =glm( lpa~age+P_2+tating,family=binomial(link='logit'),data=Patient_all )
@@ -304,8 +333,157 @@ Logic_glm =glm( lpa~age+P_2+tating,family=binomial(link='logit'),data=Patient_al
 
 
 
+##########################################################LDL_C outPatients
+############tating group
+df_ldl_C_tating=tbl_df(
+  sqlQuery(cn, "Select  distinct *  from TATING_LDL_C a order by MASTER_INDEX ,age") )
+write.csv(df_ldl_C_tating,file = "df_ldl_C_tating.csv")
+df_lpa = df_ldl_C_tating
+head(df_lpa)
+table(df_lpa$sex)
+df_lpa$sex = as.character(df_lpa$sex)
+
+#ÄÐ1Å®2ÆäËû
 
 
+df_lpa[grepl(pattern = "ÄÐ",x=df_lpa$sex),]$sex = 1
+df_lpa[grepl(pattern = "Å®",x=df_lpa$sex),]$sex = 2
+df_lpa[!df_lpa$sex%in%c(1,2),]$sex = 3
+
+
+
+df_lpa$RESULTS=as.numeric(as.character(df_lpa$RESULTS))
+
+min(df_lpa$RESULTS<0)
+
+df_lpa[df_lpa$RESULTS<0,]
+
+
+
+df_lpa = na.omit(df_lpa)
+df_lpa$order =c(1:nrow(df_lpa))
+
+head(df_lpa)
+
+fivenum(df_lpa$RESULTS) #  0.01  2.47  3.27  4.10 23.40
+fivenum(df_lpa$age) #  8  50  58  66 119
+
+by_master_index <- group_by(df_lpa, MASTER_INDEX)
+nrow(by_master_index)
+
+models <- by_master_index %>% do(mod = lm( RESULTS~order+age, data = .))
+
+tatingSign = sign(as.data.frame(summarise(models, rsq = as.data.frame(summary(mod)$coefficients)[2,1])))
+
+table(tatingSign)
+#tatingSign
+#-1    1 
+#621  1605 
+#1605/621
+
+basicData <- by_master_index %>% 
+  summarise(mean= median(RESULTS),LAP_First=first(RESULTS),LAP_LAST= last(RESULTS),
+            age=min(age),ORG_CODE=first(ORG_CODE),gender=first(sex))
+
+
+
+
+fivenum(basicData$mean) # 0.1450  2.6475  3.3000  3.9800 11.4200
+fivenum(basicData$age) # 8  49  57  64 117
+table(basicData$gender)
+#1    2    3 
+#979 1242   27 
+
+#ËûÍ¡Êý¾ÝÕûºÏ
+
+tating_res = basicData
+tating_res$tating = 1
+tating_res$ldl_c_outcome = tatingSign
+head(tating_res)
+nrow(tating_res)
+tating_res =as.data.frame(tating_res)
+
+##################non tating group
+
+df_ldl_C_non_tating=tbl_df(
+  sqlQuery(cn, "Select  distinct *  from NON_TATING_LDL_C a order by MASTER_INDEX ,age") )
+write.csv(df_ldl_C_non_tating,file = "df_ldl_C_non_tating.csv")
+df_lpa = df_ldl_C_non_tating
+head(df_lpa)
+table(df_lpa$sex)
+df_lpa$sex = as.character(df_lpa$sex)
+
+#ÄÐ1Å®2ÆäËû
+
+
+df_lpa[grepl(pattern = "ÄÐ",x=df_lpa$sex),]$sex = 1
+df_lpa[grepl(pattern = "Å®",x=df_lpa$sex),]$sex = 2
+df_lpa[!df_lpa$sex%in%c(1,2),]$sex = 3
+
+
+
+df_lpa$RESULTS=as.numeric(as.character(df_lpa$RESULTS))
+
+min(df_lpa$RESULTS<0)
+
+df_lpa[df_lpa$RESULTS<0,]
+
+
+
+df_lpa = na.omit(df_lpa)
+df_lpa$order =c(1:nrow(df_lpa))
+
+head(df_lpa)
+
+fivenum(df_lpa$RESULTS) # -43.50   35.00   83.53  202.00 5432.60
+fivenum(df_lpa$age) # 1  46  55  65 119
+
+by_master_index <- group_by(df_lpa, MASTER_INDEX)
+nrow(by_master_index)
+
+models <- by_master_index %>% do(mod = lm( RESULTS~order+age, data = .))
+
+tatingSign = sign(as.data.frame(summarise(models, rsq = as.data.frame(summary(mod)$coefficients)[2,1])))
+
+table(tatingSign)
+#tatingSign
+#-1    1 
+#7598  14812 
+
+#14812 / 7598
+
+basicData <- by_master_index %>% 
+  summarise(mean= median(RESULTS),LAP_First=first(RESULTS),LAP_LAST= last(RESULTS),
+            age=min(age),ORG_CODE=first(ORG_CODE),gender=first(sex))
+
+
+
+
+fivenum(basicData$mean) #3.1000   35.4000   81.8925  212.6000 1601.1000
+fivenum(basicData$age) #8  46  55  63 117
+table(basicData$gender)
+#1    2    3 
+#1491 1617   34
+
+tmp = basicData
+tmp$tating = 0
+tmp$ldl_C_outcome = tatingSign
+tmp = as.data.frame(tmp)
+rownames(tmp)=c(1:nrow(tmp))+4000
+head(tmp)
+rownames(tating_res)
+
+
+
+tating_res = as.matrix(tating_res)
+
+outpatient_ldl_c_res = as.data.frame(rbind(as.matrix(tating_res),as.matrix(tmp)))
+head(outpatient_ldl_c_res)
+
+nrow(outpatient_ldl_c_res)
+
+Logic_glm =glm( ldl_c_outcome~as.numeric(age)+as.numeric(gender)+tating,family=binomial(link='logit'),data=outpatient_ldl_c_res )
+summary(Logic_glm)
 
 
 
@@ -366,9 +544,9 @@ colnames(OUt_LPA_tating)=c("master_index","lpa")
 
 LDL_C=tbl_df(
   sqlQuery(cn, "select distinct MASTER_INDEX,RESULTS,datediff(year,BIRTHDAY,DIAG_TIME) age,SEX, ORG_CODE from [DB_LPA_ZONG].[dbo].LDL_C_OUT
-") )
+           ") )
 
-LDL_C$SEX = ifelse(grepl(pattern = "ç”·",x=LDL_C$SEX),1,0)
+LDL_C$SEX = ifelse(grepl(pattern = "ÄÐ",x=LDL_C$SEX),1,0)
 
 head(LDL_C)
 
@@ -434,7 +612,7 @@ LDL_C=tbl_df(
            ") )
 
 
-LDL_C$SEX = ifelse(grepl(pattern = "ç”·",x=LDL_C$SEX),1,0)
+LDL_C$SEX = ifelse(grepl(pattern = "ÄÐ",x=LDL_C$SEX),1,0)
 
 
 LDL_C_non_tating = LDL_C[LDL_C$MASTER_INDEX%in%non_tating_master_id ,] 
@@ -556,8 +734,8 @@ table(demostantin$location)
 
 
 df_lpa=tbl_df(
-sqlQuery(cn, "select distinct [master_index],RESULTS from  [master].[dbo].[LPA] a where a.MASTER_INDEX in
-(select MASTER_INDEX from  [master].[dbo].[LPA]  a group by MASTER_INDEX having count(DISTINCT REG_CODE)>1 )") )
+  sqlQuery(cn, "select distinct [master_index],RESULTS from  [master].[dbo].[LPA] a where a.MASTER_INDEX in
+           (select MASTER_INDEX from  [master].[dbo].[LPA]  a group by MASTER_INDEX having count(DISTINCT REG_CODE)>1 )") )
 head(df_lpa)
 nrow(df_lpa)
 
@@ -582,7 +760,7 @@ models <- by_cyl %>% do(mod = lm( RESULTS~order, data = .))
 
 #mod = lm( RESULTS~order,data = by_cyl[c(1:3),] )
 #summary(mod)$coefficients[2,1]
- 
+
 
 as.data.frame(summarise(models, rsq = as.data.frame(summary(mod)$coefficients)[2,1]))
 as.data.frame(summarise(models, rsq = as.data.frame(summary(mod)$coefficients)[2,4]))
@@ -603,9 +781,9 @@ head(LPA_tating)
 
 LDL_C=tbl_df(
   sqlQuery(cn, "select distinct MASTER_INDEX,RESULTS,datediff(year,BIRTHDAY,DIAG_TIME) age,SEX, ORG_CODE from [DB_LPA_ZONG].[dbo].LDL_C
-") )
+           ") )
 
-LDL_C$SEX = ifelse(grepl(pattern = "ç”·",x=LDL_C$SEX),1,0)
+LDL_C$SEX = ifelse(grepl(pattern = "ÄÐ",x=LDL_C$SEX),1,0)
 
 head(LDL_C)
 
@@ -676,7 +854,7 @@ LDL_C=tbl_df(
   sqlQuery(cn, "select distinct MASTER_INDEX,RESULTS,datediff(year,BIRTHDAY,DIAG_TIME) age,SEX, ORG_CODE from [DB_LPA_ZONG].[dbo].LDL_C_OUT
            ") )
 
-LDL_C$SEX = ifelse(grepl(pattern = "ç”·",x=LDL_C$SEX),1,0)
+LDL_C$SEX = ifelse(grepl(pattern = "ÄÐ",x=LDL_C$SEX),1,0)
 
 LDL_C_non_tating = LDL_C[LDL_C$MASTER_INDEX%in%non_tating_master_id ,] 
 
@@ -758,7 +936,7 @@ Patient
 
 ?merge
 out_Patient_1 = merge(out_Patient,as.data.frame(rbind(OUt_LPA_tating,OUt_non_LPA_tating)),
-                        by.x= "MASTER_INDEX",by.y= "models$master_index")
+                      by.x= "MASTER_INDEX",by.y= "models$master_index")
 
 out_Patient_2 = merge(Patient,as.data.frame(rbind(LPA_tating,non_LPA_tating)),
                       by.x= "MASTER_INDEX",by.y= "models$master_index")
